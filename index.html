@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>易校圈 · 校园闲置好物集散地</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root{
+    --green:#12B76A; --green-d:#0B7A4B; --green-l:#E7F8F0;
+    --ink:#16241E; --ink2:#5C6B64; --ink3:#93A29B;
+    --bg:#F4F7F5; --line:#E8EEEA; --price:#FF5A2E; --amber:#FFB020;
+  }
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:-apple-system,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+    background:radial-gradient(1000px 600px at 50% -10%, #DCF3E7 0%, #EEF3F0 45%, #E6EBE8 100%);
+    display:flex; align-items:center; justify-content:center; min-height:100vh; color:var(--ink);
+  }
+  /* ===== 手机外壳 ===== */
+  .phone{
+    width:375px; height:780px; background:#fff; border-radius:42px; position:relative;
+    box-shadow:0 40px 80px -30px rgba(12,60,40,.45), 0 0 0 10px #1D2A24, 0 0 0 12px #2E3D36;
+    overflow:hidden; display:flex; flex-direction:column;
+  }
+  .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:24px;background:#1D2A24;border-radius:14px;z-index:60;}
+  .statusbar{height:44px;flex:0 0 44px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 22px 6px;font-size:11px;font-weight:600;color:var(--ink);letter-spacing:.3px;}
+  .statusbar .right{display:flex;gap:5px;align-items:center;}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--ink);}
+
+  /* ===== 页面容器 ===== */
+  .views{flex:1;position:relative;overflow:hidden;background:var(--bg);}
+  .view{position:absolute;inset:0;overflow-y:auto;padding-bottom:96px;opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .22s ease, transform .22s ease;}
+  .view.active{opacity:1;visibility:visible;transform:none;}
+  .view::-webkit-scrollbar{width:0;}
+
+  /* ===== 首页 ===== */
+  .home-top{background:linear-gradient(160deg,#12B76A 0%,#0FA968 60%,#0C9159 100%);padding:6px 18px 22px;border-radius:0 0 26px 26px;color:#fff;position:relative;}
+  .home-top:after{content:"";position:absolute;right:-30px;top:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.13);}
+  .brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:2;}
+  .brand h1{font-size:19px;margin:0;letter-spacing:.5px;display:flex;align-items:center;gap:7px;}
+  .logo{width:26px;height:26px;border-radius:9px;background:#fff;color:var(--green-d);display:grid;place-items:center;font-size:14px;font-weight:800;box-shadow:0 4px 10px rgba(0,0,0,.12);}
+  .campus{font-size:11px;background:rgba(255,255,255,.2);padding:5px 10px;border-radius:20px;backdrop-filter:blur(4px);}
+  .search{display:flex;align-items:center;gap:8px;background:#fff;border-radius:14px;padding:11px 14px;box-shadow:0 8px 20px -10px rgba(0,0,0,.35);position:relative;z-index:2;}
+  .search svg{flex:0 0 16px;color:var(--ink3);}
+  .search input{border:0;outline:0;flex:1;font-size:13.5px;color:var(--ink);background:transparent;font-family:inherit;}
+  .search input::placeholder{color:#A9B6B0;}
+  .search .hot{font-size:11px;color:var(--green-d);background:var(--green-l);padding:3px 8px;border-radius:8px;white-space:nowrap;}
+
+  .cats{display:flex;gap:8px;overflow-x:auto;padding:14px 18px 4px;scrollbar-width:none;}
+  .cats::-webkit-scrollbar{display:none;}
+  .cat{flex:0 0 auto;font-size:12.5px;padding:7px 14px;border-radius:20px;background:#fff;color:var(--ink2);border:1px solid var(--line);}
+  .cat.on{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600;}
+
+  .banner{margin:12px 18px 6px;border-radius:16px;overflow:hidden;background:linear-gradient(100deg,#FFF3DE,#FFE7C2);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 18px -14px #C98A2E;}
+  .banner b{display:block;font-size:13.5px;color:#7A4C05;margin-bottom:3px;}
+  .banner span{font-size:11px;color:#9A6A1C;}
+  .banner em{font-style:normal;font-size:26px;}
+
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;padding:16px 18px 8px;}
+  .sec-head h2{font-size:14.5px;margin:0;letter-spacing:.3px;}
+  .sec-head span{font-size:11px;color:var(--ink3);}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:2px 14px 8px;}
+  .card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 6px 16px -12px rgba(10,50,35,.5);border:1px solid #fff;transition:transform .16s ease;}
+  .card:active{transform:scale(.975);}
+  .thumb{height:112px;display:grid;place-items:center;font-size:36px;position:relative;}
+  .thumb .tag{position:absolute;left:7px;top:7px;font-size:9.5px;background:rgba(0,0,0,.55);color:#fff;padding:2.5px 6px;border-radius:6px;backdrop-filter:blur(3px);}
+  .thumb .cond{position:absolute;right:7px;top:7px;font-size:9.5px;background:rgba(255,255,255,.9);color:var(--green-d);padding:2.5px 6px;border-radius:6px;font-weight:700;}
+  .card-b{padding:8px 9px 10px;}
+  .card-b h3{font-size:12.5px;margin:0 0 6px;line-height:1.35;height:34px;overflow:hidden;font-weight:600;}
+  .price{color:var(--price);font-weight:800;font-size:16px;letter-spacing:-.3px;}
+  .price small{font-size:10.5px;font-weight:700;}
+  .price .old{color:var(--ink3);font-size:10px;font-weight:500;text-decoration:line-through;margin-left:5px;}
+  .seller{display:flex;align-items:center;gap:5px;margin-top:7px;font-size:10px;color:var(--ink3);}
+  .ava{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:8.5px;font-weight:700;flex:0 0 16px;}
+
+  /* ===== 发布页 ===== */
+  .page-head{position:sticky;top:0;background:#fff;z-index:10;padding:8px 18px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);}
+  .page-head h2{margin:0;font-size:15.5px;}
+  .page-head .hint{font-size:11px;color:var(--ink3);}
+  .form{padding:16px 18px 0;display:flex;flex-direction:column;gap:13px;}
+  .upload{border:1.5px dashed #C9DED4;border-radius:16px;background:#FAFDFB;height:118px;display:grid;place-items:center;text-align:center;color:var(--ink3);font-size:12px;position:relative;overflow:hidden;cursor:pointer;}
+  .upload .plus{font-size:26px;color:var(--green);line-height:1;margin-bottom:6px;}
+  .upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .upload .fill{position:absolute;inset:0;display:grid;place-items:center;font-size:52px;}
+  .field{background:#fff;border-radius:14px;border:1px solid var(--line);padding:12px 14px;}
+  .field label{display:block;font-size:11px;color:var(--ink3);margin-bottom:6px;letter-spacing:.4px;}
+  .field input,.field textarea{width:100%;border:0;outline:0;font-family:inherit;font-size:14px;color:var(--ink);padding:0;background:transparent;resize:none;}
+  .field input::placeholder,.field textarea::placeholder{color:#B6C2BC;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chips .chip{font-size:11.5px;padding:6px 11px;border-radius:9px;background:#F4F8F6;color:var(--ink2);border:1px solid transparent;}
+  .chips .chip.on{background:var(--green-l);color:var(--green-d);border-color:#BDEBD6;font-weight:700;}
+  .publish{margin:6px 0 4px;width:100%;border:0;border-radius:15px;padding:15px;font-size:15px;font-weight:700;color:#fff;font-family:inherit;background:linear-gradient(100deg,#12B76A,#0B9E63);box-shadow:0 12px 22px -12px #0B7A4B;letter-spacing:1px;}
+  .publish:active{transform:translateY(1px);}
+  .tips{font-size:10.5px;color:var(--ink3);text-align:center;line-height:1.7;}
+
+  /* ===== 我的 ===== */
+  .me-top{background:linear-gradient(160deg,#0FA968,#0C8A58);padding:14px 20px 22px;color:#fff;border-radius:0 0 26px 26px;}
+  .me-row{display:flex;align-items:center;gap:12px;}
+  .me-ava{width:54px;height:54px;border-radius:50%;background:#fff;color:var(--green-d);display:grid;place-items:center;font-size:20px;font-weight:800;border:3px solid rgba(255,255,255,.45);}
+  .me-row h3{margin:0 0 4px;font-size:16px;}
+  .me-row p{margin:0;font-size:11px;opacity:.85;}
+  .stats{display:flex;margin-top:16px;background:rgba(255,255,255,.14);border-radius:14px;padding:10px 0;}
+  .stat{flex:1;text-align:center;}
+  .stat b{display:block;font-size:15.5px;}
+  .stat span{font-size:10px;opacity:.85;}
+  .tabs2{display:flex;gap:18px;padding:14px 20px 6px;border-bottom:1px solid var(--line);background:#fff;}
+  .tabs2 div{font-size:13px;color:var(--ink2);padding-bottom:8px;position:relative;}
+  .tabs2 div.on{color:var(--ink);font-weight:700;}
+  .tabs2 div.on:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:18px;height:3px;border-radius:3px;background:var(--green);}
+  .list{background:#fff;padding:4px 0;}
+  .item{display:flex;gap:11px;padding:11px 18px;align-items:center;}
+  .item .sq{width:62px;height:62px;border-radius:13px;display:grid;place-items:center;font-size:26px;flex:0 0 62px;}
+  .item h4{margin:0 0 5px;font-size:13px;font-weight:600;}
+  .item .meta{font-size:10.5px;color:var(--ink3);}
+  .item .st{margin-left:auto;font-size:10.5px;padding:4px 8px;border-radius:7px;background:var(--green-l);color:var(--green-d);font-weight:700;}
+  .rows{margin:12px 14px;background:#fff;border-radius:16px;overflow:hidden;}
+  .r{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;font-size:13px;border-bottom:1px solid #F1F5F3;}
+  .r:last-child{border-bottom:0;}
+  .r span:last-child{color:var(--ink3);font-size:12px;}
+
+  /* ===== 底部导航 ===== */
+  .nav{position:absolute;left:0;right:0;bottom:0;height:76px;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:8px 10px 14px;z-index:40;}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:#A5B3AC;font-size:10px;font-weight:600;border:0;background:none;font-family:inherit;}
+  .tab svg{width:22px;height:22px;}
+  .tab.on{color:var(--green-d);}
+  .tab.mid{justify-content:center;}
+  .tab.mid .plus{width:44px;height:44px;border-radius:16px;background:linear-gradient(140deg,#12B76A,#0B9E63);color:#fff;display:grid;place-items:center;box-shadow:0 10px 18px -8px #0B7A4B;margin-top:-14px;font-size:24px;line-height:1;}
+  .tab.mid span{margin-top:1px;}
+
+  /* ===== 详情浮层 ===== */
+  .mask{position:absolute;inset:0;background:rgba(12,28,22,.45);opacity:0;visibility:hidden;transition:.24s;z-index:50;backdrop-filter:blur(2px);}
+  .mask.on{opacity:1;visibility:visible;}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;z-index:55;transform:translateY(102%);transition:transform .3s cubic-bezier(.3,.9,.3,1);max-height:88%;overflow-y:auto;}
+  .sheet.on{transform:none;}
+  .sheet::-webkit-scrollbar{width:0;}
+  .sheet .grab{width:38px;height:4px;border-radius:4px;background:#DCE5E0;margin:9px auto 0;}
+  .detail-img{height:190px;display:grid;place-items:center;font-size:74px;margin:10px 14px 0;border-radius:18px;}
+  .detail-b{padding:14px 18px 22px;}
+  .detail-b .p{font-size:26px;color:var(--price);font-weight:800;letter-spacing:-1px;}
+  .detail-b .p small{font-size:14px;}
+  .detail-b h3{margin:6px 0 8px;font-size:16.5px;line-height:1.4;}
+  .detail-b .desc{font-size:12.5px;color:var(--ink2);line-height:1.75;margin:0 0 14px;}
+  .dl{display:flex;gap:18px;font-size:11px;color:var(--ink3);border-top:1px dashed var(--line);padding-top:11px;}
+  .dl b{color:var(--ink);font-weight:600;}
+  .seller-box{display:flex;align-items:center;gap:9px;background:#FAFDFB;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:14px 0;}
+  .seller-box .a{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;}
+  .seller-box p{margin:0;font-size:12.5px;font-weight:600;}
+  .seller-box span{font-size:10.5px;color:var(--ink3);}
+  .ask{margin-left:auto;font-size:11px;color:var(--green-d);background:var(--green-l);padding:6px 11px;border-radius:9px;font-weight:700;}
+  .actions{display:flex;gap:10px;margin-top:6px;}
+  .actions button{flex:1;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:700;font-family:inherit;}
+  .actions .ghost{background:#F3F7F5;color:var(--green-d);border:1px solid #DBEBE3;}
+  .actions .main{background:linear-gradient(100deg,#12B76A,#0B9E63);color:#fff;box-shadow:0 10px 20px -12px #0B7A4B;}
+
+  /* 交易成功 */
+  .done{position:absolute;inset:0;background:#fff;z-index:70;display:none;flex-direction:column;align-items:center;justify-content:center;padding:0 34px;text-align:center;}
+  .done.on{display:flex;animation:pop .3s ease;}
+  @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+  .done .tick{width:86px;height:86px;border-radius:50%;background:linear-gradient(140deg,#12B76A,#0B9E63);display:grid;place-items:center;color:#fff;font-size:44px;box-shadow:0 20px 40px -18px #0B7A4B;margin-bottom:22px;}
+  .done h3{font-size:19px;margin:0 0 8px;}
+  .done p{font-size:12.5px;color:var(--ink2);line-height:1.8;margin:0 0 6px;}
+  .done .code{font-size:11px;color:var(--ink3);background:#F4F8F6;padding:8px 14px;border-radius:10px;margin:12px 0 22px;}
+  .done button{width:100%;border:0;border-radius:14px;padding:14px;background:linear-gradient(100deg,#12B76A,#0B9E63);color:#fff;font-size:14px;font-weight:700;font-family:inherit;}
+
+  .toast{position:absolute;left:50%;bottom:100px;transform:translate(-50%,16px);background:rgba(20,40,32,.92);color:#fff;font-size:12.5px;padding:10px 18px;border-radius:12px;opacity:0;transition:.25s;z-index:80;pointer-events:none;white-space:nowrap;}
+  .toast.on{opacity:1;transform:translate(-50%,0);}
+  .empty{text-align:center;color:var(--ink3);font-size:12.5px;padding:40px 0;}
+  .empty div{font-size:34px;margin-bottom:8px;}
+
+  /* ===== 手机上直接打开时铺满屏幕 ===== */
+  @media (max-width: 440px), (max-height: 820px){
+    body{background:#fff; display:block;}
+    .phone{width:100%; height:100vh; height:100dvh; border-radius:0; box-shadow:none; margin:0 auto;}
+    .notch{display:none;}
+    .statusbar{height:32px; flex:0 0 32px;}
+    .sheet{border-radius:24px 24px 0 0;}
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="notch"></div>
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="right"><span>●●●</span><span>WiFi</span><span>100%</span></span>
+  </div>
+
+  <div class="views">
+    <!-- ================= 首页 ================= -->
+    <section class="view active" id="v-home">
+      <div class="home-top">
+        <div class="brand">
+          <h1><span class="logo">易</span>易校圈</h1>
+          <span class="campus">📍 江城大学 · 本部</span>
+        </div>
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+          <input id="q" placeholder="搜考研资料、自行车、显示器…" />
+          <span class="hot">热门</span>
+        </div>
+      </div>
+
+      <div class="cats" id="cats">
+        <div class="cat on" data-c="全部">全部</div>
+        <div class="cat" data-c="教材资料">📚 教材资料</div>
+        <div class="cat" data-c="骑行">🚲 骑行</div>
+        <div class="cat" data-c="数码">💻 数码</div>
+        <div class="cat" data-c="宿舍好物">🧊 宿舍好物</div>
+      </div>
+
+      <div class="banner">
+        <div>
+          <b>毕业季 · 旧物换新家</b>
+          <span>校内当面交易 · 0 运费 · 0 平台费</span>
+        </div>
+        <em>🎓</em>
+      </div>
+
+      <div class="sec-head">
+        <h2 id="listTitle">同校好物 · 近 24 小时上新 36 件</h2>
+        <span>离你最近 ›</span>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- ================= 发布页 ================= -->
+    <section class="view" id="v-post">
+      <div class="page-head">
+        <h2>发布闲置</h2>
+        <span class="hint">仅同校同学可见</span>
+      </div>
+      <div class="form">
+        <div class="upload" id="upload">
+          <div class="plus">＋</div>
+          <div>上传商品图片（最多 6 张）</div>
+        </div>
+        <div class="field">
+          <label>商品标题</label>
+          <input id="f-title" maxlength="30" placeholder="例如：考研英语真题 2024 版 九成新" />
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>价格（元）</label>
+            <input id="f-price" type="number" placeholder="5" />
+          </div>
+          <div class="field">
+            <label>原价（可选）</label>
+            <input id="f-old" type="number" placeholder="68" />
+          </div>
+        </div>
+        <div class="field">
+          <label>商品分类</label>
+          <div class="chips" id="f-cats">
+            <div class="chip on" data-c="教材资料">教材资料</div>
+            <div class="chip" data-c="骑行">骑行</div>
+            <div class="chip" data-c="数码">数码</div>
+            <div class="chip" data-c="宿舍好物">宿舍好物</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>新旧程度 & 交易方式</label>
+          <div class="chips" id="f-cond">
+            <div class="chip on" data-c="九成新">九成新</div>
+            <div class="chip" data-c="八成新">八成新</div>
+            <div class="chip" data-c="全新">全新</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>补充描述（可选）</label>
+          <textarea id="f-desc" rows="2" placeholder="写点卖点，成交更快～ 例如：无笔记无划线，可送政治笔记"></textarea>
+        </div>
+        <button class="publish" id="doPublish">立即发布</button>
+        <div class="tips">发布后将推送给本校 3.2 万同学<br/>交易请选择宿舍楼下等公共区域当面验货</div>
+      </div>
+    </section>
+
+    <!-- ================= 我的 ================= -->
+    <section class="view" id="v-me">
+      <div class="me-top">
+        <div class="me-row">
+          <div class="me-ava">李</div>
+          <div>
+            <h3>李同学 <span style="font-size:10px;background:rgba(255,255,255,.22);padding:2px 7px;border-radius:6px;vertical-align:2px;">已认证</span></h3>
+            <p>计算机学院 · 2022 级 · 信用分 98</p>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>12</b><span>我卖出的</span></div>
+          <div class="stat"><b>7</b><span>我买到的</span></div>
+          <div class="stat"><b>23</b><span>我的收藏</span></div>
+        </div>
+      </div>
+      <div class="tabs2" id="tabs2">
+        <div class="on" data-t="sold">我卖出的</div>
+        <div data-t="bought">我买到的</div>
+      </div>
+      <div class="list" id="meList"></div>
+      <div class="rows">
+        <div class="r"><span>🎒 我的收藏</span><span>23 件 ›</span></div>
+        <div class="r"><span>🛡️ 校园认证 & 信用分</span><span>98 分 ›</span></div>
+        <div class="r"><span>💬 交易消息</span><span>2 条未读 ›</span></div>
+        <div class="r"><span>⚙️ 设置与帮助</span><span>›</span></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#B6C2BC;padding:6px 0 10px;">易校圈 v1.0 · 让闲置在校园里流转</div>
+    </section>
+
+    <!-- 详情浮层 -->
+    <div class="mask" id="mask"></div>
+    <div class="sheet" id="sheet">
+      <div class="grab"></div>
+      <div class="detail-img" id="dImg"></div>
+      <div class="detail-b">
+        <div class="p" id="dPrice"></div>
+        <h3 id="dTitle"></h3>
+        <p class="desc" id="dDesc"></p>
+        <div class="dl" id="dMeta"></div>
+        <div class="seller-box">
+          <div class="a" id="dAva"></div>
+          <div>
+            <p id="dName"></p>
+            <span id="dInfo"></span>
+          </div>
+          <div class="ask">私聊问问</div>
+        </div>
+        <div class="actions">
+          <button class="ghost" id="dClose">再逛逛</button>
+          <button class="main" id="dBuy">我想要 · 当面交易</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 交易成功 -->
+    <div class="done" id="done">
+      <div class="tick">✓</div>
+      <h3>交易成功！</h3>
+      <p>已和「李同学」约定今晚 7:00<br/>在 3 号宿舍楼下当面验货交易</p>
+      <div class="code">交易码 8823 · 校内当面付，无需运费</div>
+      <p style="font-size:11.5px;color:#93A29B;">旧物新生，减碳约 2.4kg 🌱</p>
+      <div style="height:18px"></div>
+      <button id="doneBtn">完成</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <!-- 底部导航 -->
+  <nav class="nav">
+    <button class="tab on" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>
+      <span>首页</span>
+    </button>
+    <button class="tab mid" data-tab="post">
+      <span class="plus">＋</span>
+      <span>发布</span>
+    </button>
+    <button class="tab" data-tab="me">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.2-4 4-5.6 7.5-5.6s6.3 1.6 7.5 5.6"/></svg>
+      <span>我的</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+/* ================= 数据 ================= */
+const PALETTES = [
+  'linear-gradient(140deg,#DDF3E6,#B9E6CE)',
+  'linear-gradient(140deg,#DCEAFB,#B9D6F2)',
+  'linear-gradient(140deg,#FDEBD2,#F7D3A6)',
+  'linear-gradient(140deg,#EDE6FB,#D5C7F4)',
+  'linear-gradient(140deg,#FBE2E2,#F3C0C0)',
+  'linear-gradient(140deg,#E3F3F8,#BEE2EE)'
+];
+const AVATARS = ['#12B76A','#3B82F6','#F59E0B','#8B5CF6','#EF4444','#0EA5E9'];
+
+let goods = [
+  {id:1, title:'考研英语真题 2024版 全新未拆', price:5, old:68, emoji:'📕', cat:'教材资料', cond:'九成新', seller:'李同学', college:'计算机学院', dist:'3 号楼 · 120m', color:0, desc:'黄皮书全套，只做过一篇阅读，其余全新。附赠自己整理的高频词清单，可加微信发电子版。', time:'2 小时前'},
+  {id:2, title:'九成新山地自行车 捷安特 ATX', price:320, old:1299, emoji:'🚲', cat:'骑行', cond:'九成新', seller:'王同学', college:'机械学院', dist:'7 号楼 · 260m', color:1, desc:'骑了一年，刚换的刹车皮和链条，锁和打气筒一起送。毕业带不走，诚心出，可试骑。', time:'5 小时前'},
+  {id:3, title:'宿舍小冰箱 45L 静音省电', price:150, old:399, emoji:'🧊', cat:'宿舍好物', cond:'八成新', seller:'陈同学', college:'外国语学院', dist:'1 号楼 · 80m', color:2, desc:'用了两个学期，制冷正常无异响，能放 24 瓶水。自提，宿舍楼下帮忙抬。', time:'昨天'},
+  {id:4, title:'罗技无线鼠标 + 机械键盘套装', price:88, old:259, emoji:'⌨️', cat:'数码', cond:'九成新', seller:'赵同学', college:'软件学院', dist:'5 号楼 · 300m', color:3, desc:'青轴 87 键，打字手感很好，鼠标无漂移。换本了整套出，盒子还在。', time:'昨天'},
+  {id:5, title:'高数线代教材 + 全套笔记', price:15, old:79, emoji:'📚', cat:'教材资料', cond:'八成新', seller:'孙同学', college:'数学学院', dist:'图书馆 · 200m', color:4, desc:'同济第七版，笔记很全，重点都划了。期末 90+ 的笔记，送给有缘人。', time:'2 天前'},
+  {id:6, title:'宿舍折叠小桌 + 台灯 两件套', price:25, old:120, emoji:'🪑', cat:'宿舍好物', cond:'九成新', seller:'周同学', college:'文学院', dist:'2 号楼 · 150m', color:5, desc:'床上小桌板，稳当不晃；护眼台灯三档调光。毕业清仓，一起拿更便宜。', time:'2 天前'}
+];
+
+const ME_SOLD = [
+  {t:'大学物理实验报告模板（电子版）', p:3, e:'📄', s:'已售出'},
+  {t:'小米充电宝 20000mAh', p:45, e:'🔋', s:'交易中'},
+  {t:'英语四六级真题（两本）', p:8, e:'📘', s:'已售出'}
+];
+const ME_BOUGHT = [
+  {t:'考研政治 1000 题', p:12, e:'📗', s:'待评价'},
+  {t:'宿舍插排 5 位', p:18, e:'🔌', s:'已买到'},
+  {t:'二手 rain 雨伞', p:10, e:'☂️', s:'已买到'}
+];
+
+/* ================= 渲染 ================= */
+const $ = s => document.querySelector(s);
+const grid = $('#grid'), listTitle = $('#listTitle');
+let curCat = '全部', keyword = '';
+
+function render(){
+  const kw = keyword.trim();
+  let data = goods.filter(g => (curCat === '全部' || g.cat === curCat) &&
+    (!kw || (g.title + g.cat + g.desc + g.seller).includes(kw)));
+  listTitle.textContent = kw ? `搜索「${kw}」· ${data.length} 件在售` :
+    (curCat === '全部' ? '同校好物 · 近 24 小时上新 36 件' : curCat + ' · ' + data.length + ' 件在售');
+
+  if(!data.length){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div>🔍</div>没有找到相关好物<br/>换个关键词，或自己发布一条？</div>`;
+    return;
+  }
+  grid.innerHTML = data.map(g => `
+    <div class="card" data-id="${g.id}">
+      <div class="thumb" style="background:${PALETTES[g.color]}">
+        <span class="tag">${g.cat}</span>
+        <span class="cond">${g.cond}</span>
+        ${g.emoji}
+      </div>
+      <div class="card-b">
+        <h3>${g.title}</h3>
+        <div class="price"><small>¥</small>${g.price}${g.old ? `<span class="old">¥${g.old}</span>` : ''}</div>
+        <div class="seller">
+          <span class="ava" style="background:${AVATARS[g.color]}">${g.seller[0]}</span>
+          ${g.seller} · ${g.dist}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderMe(type){
+  const data = type === 'sold' ? ME_SOLD : ME_BOUGHT;
+  $('#meList').innerHTML = data.map(i => `
+    <div class="item">
+      <div class="sq" style="background:${PALETTES[(i.e.charCodeAt(0) + i.p) % 6]}">${i.e}</div>
+      <div>
+        <h4>${i.t}</h4>
+        <div class="meta">¥${i.p} · 校内当面交易</div>
+      </div>
+      <div class="st">${i.s}</div>
+    </div>`).join('');
+}
+
+/* ================= 交互 ================= */
+function switchTab(t){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  $('#v-' + t).classList.add('active');
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  closeSheet();
+}
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+
+$('#cats').onclick = e => {
+  const c = e.target.closest('.cat'); if(!c) return;
+  document.querySelectorAll('.cat').forEach(x => x.classList.remove('on'));
+  c.classList.add('on'); curCat = c.dataset.c; render();
+};
+$('#q').oninput = e => { keyword = e.target.value; render(); };
+
+grid.onclick = e => {
+  const card = e.target.closest('.card'); if(!card) return;
+  openDetail(+card.dataset.id);
+};
+
+function openDetail(id){
+  const g = goods.find(x => x.id === id); if(!g) return;
+  $('#dImg').style.background = PALETTES[g.color];
+  $('#dImg').textContent = g.emoji;
+  $('#dPrice').innerHTML = `<small>¥</small>${g.price}${g.old ? `<span style="font-size:12px;color:#93A29B;text-decoration:line-through;margin-left:8px;font-weight:500;">¥${g.old}</span>` : ''}`;
+  $('#dTitle').textContent = g.title;
+  $('#dDesc').textContent = g.desc;
+  $('#dMeta').innerHTML = `<span>成色 <b>${g.cond}</b></span><span>分类 <b>${g.cat}</b></span><span>发布 <b>${g.time}</b></span>`;
+  $('#dAva').style.background = AVATARS[g.color];
+  $('#dAva').textContent = g.seller[0];
+  $('#dName').textContent = g.seller;
+  $('#dInfo').textContent = `${g.college} · ${g.dist} · 交易 12 次好评 100%`;
+  $('#mask').classList.add('on');
+  $('#sheet').classList.add('on');
+}
+function closeSheet(){ $('#mask').classList.remove('on'); $('#sheet').classList.remove('on'); }
+$('#mask').onclick = closeSheet;
+$('#dClose').onclick = closeSheet;
+$('#dBuy').onclick = () => { closeSheet(); setTimeout(() => $('#done').classList.add('on'), 180); };
+$('#doneBtn').onclick = () => { $('#done').classList.remove('on'); toast('已完成，记得和卖家约时间 😊'); };
+
+/* 发布页 */
+let postCat = '教材资料', postCond = '九成新', postImg = null;
+const EMOJIS = ['📦','📚','🚲','💻','🧊','🪑','🔋','🎧'];
+
+$('#f-cats').onclick = e => {
+  const c = e.target.closest('.chip'); if(!c) return;
+  document.querySelectorAll('#f-cats .chip').forEach(x => x.classList.remove('on'));
+  c.classList.add('on'); postCat = c.dataset.c;
+};
+$('#f-cond').onclick = e => {
+  const c = e.target.closest('.chip'); if(!c) return;
+  document.querySelectorAll('#f-cond .chip').forEach(x => x.classList.remove('on'));
+  c.classList.add('on'); postCond = c.dataset.c;
+};
+
+/* 上传：真实选图；不便选图时点一下用色块+emoji 代替 */
+const upload = $('#upload');
+const picker = document.createElement('input');
+picker.type = 'file'; picker.accept = 'image/*'; picker.style.display = 'none';
+document.body.appendChild(picker);
+upload.onclick = () => picker.click();
+picker.onchange = () => {
+  const f = picker.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    postImg = r.result;
+    upload.innerHTML = `<img src="${postImg}" alt="预览"/>`;
+    toast('图片已添加');
+  };
+  r.readAsDataURL(f);
+};
+
+$('#doPublish').onclick = () => {
+  const title = $('#f-title').value.trim();
+  const price = $('#f-price').value.trim();
+  if(!title){ toast('先写个商品标题吧'); $('#f-title').focus(); return; }
+  if(!price || +price <= 0){ toast('价格还没填哦'); $('#f-price').focus(); return; }
+
+  /* 用色块 + emoji 模拟图片，避免截图时出现空图 */
+  const g = {
+    id: Date.now(),
+    title,
+    price: +price,
+    old: $('#f-old').value ? +$('#f-old').value : null,
+    emoji: postImg ? '🖼️' : EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+    cat: postCat,
+    cond: postCond,
+    seller: '李同学',
+    college: '计算机学院',
+    dist: '3 号楼 · 0m',
+    color: Math.floor(Math.random() * 6),
+    desc: $('#f-desc').value.trim() || '同校当面交易，可先看货再决定，宿舍楼下自提。',
+    time: '刚刚'
+  };
+  goods.unshift(g);
+  curCat = '全部'; keyword = ''; $('#q').value = '';
+  document.querySelectorAll('.cat').forEach((x, i) => x.classList.toggle('on', i === 0));
+  render();
+  switchTab('home');
+  toast('发布成功！已推送给同校同学 🎉');
+  $('#f-title').value = ''; $('#f-price').value = ''; $('#f-old').value = ''; $('#f-desc').value = '';
+  upload.innerHTML = '<div class="plus">＋</div><div>上传商品图片（最多 6 张）</div>';
+  postImg = null;
+};
+
+$('#tabs2').onclick = e => {
+  const d = e.target.closest('div[data-t]'); if(!d) return;
+  document.querySelectorAll('#tabs2 div').forEach(x => x.classList.remove('on'));
+  d.classList.add('on'); renderMe(d.dataset.t);
+};
+
+let toastTimer;
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 1800);
+}
+
+render(); renderMe('sold');
+</script>
+</body>
+</html>
